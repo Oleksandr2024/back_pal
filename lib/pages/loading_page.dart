@@ -27,7 +27,7 @@ class _LoadingPageState extends State<LoadingPage> {
         children: [
           // Background picture
           Image.asset(
-            'assets/BackgroundBack.jpg',
+            'assets/BackGroundBack.png',
             fit: BoxFit.cover,
           ),
 
@@ -42,7 +42,11 @@ class _LoadingPageState extends State<LoadingPage> {
                 SizedBox(height: 16),
                 Text(
                   'Loading...',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(
+                      color: Colors.white,
+                    fontSize: 25.0,
+                    fontWeight: FontWeight.w500
+                  ),
                 ),
               ],
             ),

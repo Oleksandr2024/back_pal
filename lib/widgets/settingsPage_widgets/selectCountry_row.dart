@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:back_pal/services/language_service.dart';
 
 class SelectCountryRow extends StatefulWidget {
   final bool isEnabled; // To control the state
@@ -17,9 +18,9 @@ class _SelectCountryRowState extends State<SelectCountryRow> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'Select country',
-          style: TextStyle(
+        Text(
+          LanguageService.getTranslation('app_settingsPro_country') ?? 'Select country',
+          style: const TextStyle(
             fontSize: 18.0,
             fontFamily: 'Montserrat',
             color: Colors.white,

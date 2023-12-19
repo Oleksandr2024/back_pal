@@ -1,21 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:back_pal/services/language_manager.dart';
+import 'package:back_pal/services/language_service.dart';
+import '../../main.dart';
 
 class LanguageRow extends StatefulWidget {
+  static final GlobalKey<_LanguageRowState> languageRowKey =
+  GlobalKey<_LanguageRowState>();
+
   @override
   _LanguageRowState createState() => _LanguageRowState();
 }
 
 class _LanguageRowState extends State<LanguageRow> {
-  String selectedLanguage = 'English'; // Default language
+  late LanguageManager _languageManager;
+  late String _selectedLanguage;
+
+  @override
+  void initState() {
+    super.initState();
+    _languageManager = LanguageManager();
+    _selectedLanguage = _languageManager.selectedLanguage;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'Language',
-          style: TextStyle(
+         Text(
+          LanguageService.getTranslation('app_settings_language') ?? 'Language',
+          style: const TextStyle(
             fontSize: 18.0,
             fontFamily: 'Montserrat',
             color: Colors.white,
@@ -27,10 +41,23 @@ class _LanguageRowState extends State<LanguageRow> {
   }
 
   Widget _buildLanguageOptions() {
-    List<String> languages = ['English', 'Українська', 'Deutsch', 'Español', 'Français', 'العربية', '中文', '日本語'];
+    List<String> languages = [
+      'English',
+      'Українська',
+      'Deutsch',
+      'Español',
+      'Français',
+      'Nederlands',
+      'Italiano',
+      'العربية',
+      '中文',
+      '日本語',
+      '한국어'
+    ];
 
     return DropdownButton<String>(
-      value: selectedLanguage,
+      key: LanguageRow.languageRowKey,
+      value: _selectedLanguage,
       style: const TextStyle(
         fontSize: 18.0,
         fontFamily: 'Montserrat',
@@ -39,7 +66,7 @@ class _LanguageRowState extends State<LanguageRow> {
       dropdownColor: Colors.grey[800],
       items: languages.map((String value) {
         return DropdownMenuItem<String>(
-          value: value,
+          value: _languageManager.languageCodeMapping[value],
           child: Text(
             value,
             style: const TextStyle(
@@ -52,17 +79,15 @@ class _LanguageRowState extends State<LanguageRow> {
       }).toList(),
       onChanged: (String? newValue) {
         if (newValue != null) {
-          // Handle language change
           setState(() {
-            selectedLanguage = newValue;
+            _languageManager.setLanguage(newValue);
+            _selectedLanguage = newValue;
           });
-          // You can implement logic to update the app's language here
-          // For now, let's just print the selected language
-          print('Selected Language: $selectedLanguage');
+          print('Selected Language: $newValue');
+
+          MyApp.setLocale(context, Locale(newValue.toLowerCase()));
         }
       },
     );
   }
 }
-
-

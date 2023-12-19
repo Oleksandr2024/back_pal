@@ -1,6 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:back_pal/services/language_service.dart';
+import 'package:back_pal/services/notification_service.dart';
+import 'package:shared_preferences/shared_preferences.dart'; //added
+import 'package:back_pal/utilities/dailyTimeChangeHandler.dart'; //added
+import 'package:back_pal/services/preferences_manager.dart';
+
 
 class DailyStartTimeRow extends StatefulWidget {
+  final TimeChangeHandler timeChangeHandler;
+  final NotificationService notificationService;
+  final bool isRunning; // Add this
+
+  DailyStartTimeRow({
+    required this.timeChangeHandler,
+    required this.notificationService,
+    required this.isRunning, // Add this
+  });
+
   @override
   _DailyStartTimeRowState createState() => _DailyStartTimeRowState();
 }
@@ -8,15 +24,39 @@ class DailyStartTimeRow extends StatefulWidget {
 class _DailyStartTimeRowState extends State<DailyStartTimeRow> {
   int _selectedHours = 9;
   int _selectedMinutes = 0;
-  String _selectedAmPm = 'a.m.';
+  //String _selectedAmPm = 'a.m.';
+
+
+  // void _onStartTimeChanged() async {
+  //   await PreferencesManager().saveStartTime(_selectedHours, _selectedMinutes);
+  //   widget.timeChangeHandler.onStartTimeChanged(_selectedHours, _selectedMinutes);
+  //
+  //   // Cancel any existing notifications
+  //   widget.notificationService.cancelAllNotifications();
+  //
+  //   // Start new notifications with the updated start time
+  //   widget.notificationService.startScheduledNotifications();
+  // }
+
+  void _onStartTimeChanged() async {
+    await PreferencesManager().saveStartTime(_selectedHours, _selectedMinutes);
+
+    if (widget.isRunning) {
+      widget.notificationService.cancelAllNotifications();
+      widget.notificationService.startScheduledNotifications();
+    }
+
+    widget.timeChangeHandler.onStartTimeChanged(_selectedHours, _selectedMinutes);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'Daily start time',
+        Text(
+          //'Daily start time',
+          LanguageService.getTranslation('app_settings_startTime') ?? 'Daily start time',
           style: TextStyle(
             fontSize: 18.0,
             fontFamily: 'Montserrat',
@@ -37,7 +77,7 @@ class _DailyStartTimeRowState extends State<DailyStartTimeRow> {
         SizedBox(width: 5),
         _buildMinutesDropdown(),
         SizedBox(width: 5),
-        _buildAmPmDropdown(),
+        //_buildAmPmDropdown(),
       ],
     );
   }
@@ -45,7 +85,7 @@ class _DailyStartTimeRowState extends State<DailyStartTimeRow> {
   Widget _buildHoursDropdown() {
     return DropdownButton<int>(
       value: _selectedHours,
-      items: List.generate(12, (index) => index + 1).map((int value) {
+      items: List.generate(24, (index) => index).map((int value) {
         return DropdownMenuItem<int>(
           value: value,
           child: Text(
@@ -60,7 +100,10 @@ class _DailyStartTimeRowState extends State<DailyStartTimeRow> {
       }).toList(),
       onChanged: (int? newValue) {
         setState(() {
-          _selectedHours = newValue!;
+          if (newValue != null) {
+            _selectedHours = newValue;
+            _onStartTimeChanged(); // Call this method to save and handle the change
+          }
         });
       },
       dropdownColor: Colors.grey[850],
@@ -85,34 +128,10 @@ class _DailyStartTimeRowState extends State<DailyStartTimeRow> {
       }).toList(),
       onChanged: (int? newValue) {
         setState(() {
-          _selectedMinutes = newValue!;
-        });
-      },
-      dropdownColor: Colors.grey[850],
-    );
-  }
-
-  Widget _buildAmPmDropdown() {
-    return DropdownButton<String>(
-      value: _selectedAmPm,
-      items: ['a.m.', 'p.m.']
-          .map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(
-            value,
-            style: const TextStyle(
-              fontSize: 18.0,
-              fontFamily: 'Montserrat',
-              color: Colors.white,
-            ),
-          ),
-        );
-      })
-          .toList(),
-      onChanged: (String? newValue) {
-        setState(() {
-          _selectedAmPm = newValue!;
+          if (newValue != null) {
+            _selectedMinutes = newValue;
+            _onStartTimeChanged(); // Call this method to save and handle the change
+          }
         });
       },
       dropdownColor: Colors.grey[850],

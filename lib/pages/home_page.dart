@@ -1,8 +1,79 @@
+import 'package:back_pal/pages/settings_page.dart';
 import 'package:flutter/material.dart';
-// import 'package:back_pal/services/notification_service.dart';
+import 'dart:async';
+import 'package:back_pal/services/notification_service.dart';
+import 'package:back_pal/services/language_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:back_pal/utilities/dailyTimeChangeHandler.dart';
 
-class HomePage extends StatelessWidget {
+
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool isRunning = false; // State to track whether the process is running
+  final NotificationService notificationService = NotificationService();
+  final TimeChangeHandler timeChangeHandler = TimeChangeHandler();
+  Timer? timer;
+
+  // Method to update isRunning state
+  void updateIsRunning(bool value) {
+    setState(() {
+      isRunning = value;
+    });
+  }
+
+  Future<bool> _isEndTimeValid() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int startHour = prefs.getInt('startHour') ?? 9;
+    int startMinute = prefs.getInt('startMinute') ?? 0;
+    int endHour = prefs.getInt('endHour') ?? 18;
+    int endMinute = prefs.getInt('endMinute') ?? 0;
+    // Comparing the times
+    if (endHour > startHour || (endHour == startHour && endMinute > startMinute)) {
+      return true;
+    }
+    return false;
+  }
+
+  void _showInvalidTimeError() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey[300],
+          title: Text(
+            LanguageService.getTranslation('app_time_alert_title') ?? 'Invalid Time Settings',
+          ),
+          content: Text(
+              LanguageService.getTranslation('app_time_alert_body') ?? 'End time cannot be earlier than start time. Change end time in settings to see notifications',
+            style: const TextStyle(
+            fontSize: 20.0,
+            // backgroundColor: Colors.grey[500]
+          ),),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK', style: TextStyle(fontSize: 24.0),),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    notificationService.init();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -17,41 +88,38 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 300.0), //was 300
+            const SizedBox(height: 260.0), //was 300
 
             // Stack to position the Divider above the text
-            const Stack(
+            Stack(
               children: [
-                // Some text
                 Padding(
                   padding: EdgeInsets.fromLTRB(60.0, 30.0, 30.0, 10.0),
                   child: Text(
-                    'BackPal: Your Back Deserves the Best!',
-                    style: TextStyle(
-                      fontSize: 30.0,
+                    LanguageService.getTranslation('app_title:app_slogan') ?? 'Default title: Default slogan',
+                    style: const TextStyle(
+                      fontSize: 28.0,
                       color: Color(0xFFEFEFEF),
                       fontFamily: 'Montserrat',
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-                Positioned(
-                  top: 0, // Adjust the top position as needed
+                const Positioned(
+                  top: 0,
                   left: 10,
                   right: 10,
                   child: Divider(
                     height: 1,
-
                     color: Color(0xFF002D75),
                   ),
                 ),
               ],
             ),
-
             const SizedBox(height: 20.0),
-            const Text(
-              'Let\'s take care of your back!',
-              style: TextStyle(
+             Text(
+              LanguageService.getTranslation('app_exhort') ?? 'Let\'s take care of your back!',
+              style: const TextStyle(
                 fontSize: 18.0,
                 color: Color(0xFFEFEFEF),
                 fontFamily: 'Montserrat',
@@ -61,21 +129,41 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 7.0),
             ElevatedButton(
-              onPressed: () {
-                //run notifications
+              onPressed: () async {
+                bool endTimeIsValid = await _isEndTimeValid();
+                if (!endTimeIsValid) {
+                  // Show error message
+                  _showInvalidTimeError();
+                  return;
+                }
+                // Toggle the state and run the corresponding function
+                setState(() {
+                  isRunning = !isRunning;
+                  if (isRunning) {
+                    notificationService.startScheduledNotifications();
+                  } else {
+                    notificationService.cancelAllNotifications();
+                  }
+                });
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.pinkAccent[700],
                 foregroundColor: Colors.white,
                 textStyle: const TextStyle(
                   fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w400,
                   fontFamily: 'Montserrat',
                 ),
               ),
-              child: const Text(
-                  'Start',
-                style: TextStyle(
+              child: Text(
+                (() {
+                  if (isRunning) {
+                    return LanguageService.getTranslation('app_stop') ?? 'Stop';
+                  } else {
+                    return LanguageService.getTranslation('app_start') ?? 'Start';
+                  }
+                })(),
+                style: const TextStyle(
                   letterSpacing: 1.5,
                 ),
               ),
@@ -96,10 +184,13 @@ class HomePage extends StatelessWidget {
                   fontFamily: 'Montserrat',
                 ),
               ),
-              child: const Text('Upgrade to Pro!'),
+              child: Text(
+                 // 'Upgrade to Pro!'
+                LanguageService.getTranslation('app_upgrade') ?? 'Upgrade to Pro!',
+              ),
+
             ),
             SizedBox(height: 20.0),
-
             // Navigation menu row
             Spacer(),
             Row(
@@ -120,13 +211,31 @@ class HomePage extends StatelessWidget {
                       letterSpacing: 1.5,
                     ),
                   ),
-                  child: const Text('About'),
+                  child: Text(
+                      //'About'
+                    LanguageService.getTranslation('app_about') ?? 'About',
+                  ),
                 ),
 
                 ElevatedButton(
                   onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SettingsPage(
+                          timeChangeHandler: timeChangeHandler,
+                          notificationService: notificationService,
+                          updateIsRunningCallback: (bool value) {
+                            setState(() {
+                              isRunning = value;
+                            });
+                          },
+                          isRunning: isRunning,
+                        ),
+                      ),
+                    );
                     // Navigate to Settings page
-                    Navigator.pushNamed(context, '/settings');
+                    // Navigator.pushNamed(context, '/settings');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.pinkAccent[700],
@@ -138,7 +247,10 @@ class HomePage extends StatelessWidget {
                       letterSpacing: 1.5,
                     ),
                   ),
-                  child: const Text('Settings'),
+                  child: Text(
+                     // 'Settings'
+                    LanguageService.getTranslation('app_settings') ?? 'Settings',
+                  ),
                 ),
               ],
             ),
@@ -147,87 +259,12 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
 }
 
 
-
-// import 'package:flutter/material.dart';
-//
-// class HomePage extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Color(0xFF303132), // Set background color
-//       body: Column(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         children: [
-//           // Logo image
-//           Image.asset('assets/LogoBack2.jpg', width: 400),
-//           SizedBox(height: 50.0),
-//
-//           // Some text
-//           Padding(
-//             padding: const EdgeInsets.fromLTRB(50.0, 10.0, 30.0, 10.0),
-//             child: Text(
-//               'BackPal: Your Back Deserves the Best!',
-//               style: TextStyle(
-//                 fontSize: 30.0,
-//                 color: Color(0xFFEBCD9F),
-//                 fontWeight: FontWeight.w500,
-//                 //textAlign: TextAlign.center, // Align text to center
-//               ),
-//             ),
-//           ),
-//           SizedBox(height: 50.0),
-//
-//           // Upgrade to Pro button
-//           ElevatedButton(
-//             onPressed: () {
-//               // Navigate to Pro Features page
-//               Navigator.pushNamed(context, '/pro');
-//             },
-//             style: ElevatedButton.styleFrom(
-//               primary: Colors.orangeAccent[700], // Button background color
-//               onPrimary: Colors.white, // Button font color
-//             ),
-//             child: Text('Upgrade to Pro'),
-//           ),
-//           SizedBox(height: 50.0),
-//
-//           // Navigation menu row
-//           Spacer(), // Push the row to the bottom
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.spaceAround,
-//             children: [
-//               // About button
-//               ElevatedButton(
-//                 onPressed: () {
-//                   // Navigate to About page
-//                   Navigator.pushNamed(context, '/about');
-//                 },
-//                 style: ElevatedButton.styleFrom(
-//                   primary: Colors.green, // Button background color
-//                   onPrimary: Colors.white, // Button font color
-//                 ),
-//                 child: Text('About'),
-//               ),
-//
-//               // Settings button
-//               ElevatedButton(
-//                 onPressed: () {
-//                   // Navigate to Settings page
-//                   Navigator.pushNamed(context, '/settings');
-//                 },
-//                 style: ElevatedButton.styleFrom(
-//                   primary: Colors.blue, // Button background color
-//                   onPrimary: Colors.white, // Button font color
-//                 ),
-//                 child: Text('Settings'),
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

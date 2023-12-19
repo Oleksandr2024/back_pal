@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:back_pal/services/language_service.dart';
 
 class ShowAdsRow extends StatefulWidget {
   final bool isEnabled; // To control the state
@@ -17,9 +18,9 @@ class _ShowAdsRowState extends State<ShowAdsRow> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'Show ads',
-          style: TextStyle(
+        Text(
+          LanguageService.getTranslation('app_settingsPro_showAds') ?? 'Show ads',
+          style: const TextStyle(
             fontSize: 18.0,
             fontFamily: 'Montserrat',
             color: Colors.white,
