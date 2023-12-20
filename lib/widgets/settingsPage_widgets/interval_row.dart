@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:back_pal/services/language_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:back_pal/services/user_preferences_manager.dart';
 
 class IntervalReminderRow extends StatefulWidget {
   @override
@@ -12,10 +13,15 @@ class _IntervalReminderRowState extends State<IntervalReminderRow> {
   int _selectedMinutes = 30;
 
   //save interval to shared preferences
+  // Future<void> _saveIntervalSetting() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   int intervalInSeconds = _selectedHours * 3600 + _selectedMinutes * 60;
+  //   await prefs.setInt('notificationInterval', intervalInSeconds);
+  // }
+
   Future<void> _saveIntervalSetting() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int intervalInSeconds = _selectedHours * 3600 + _selectedMinutes * 60;
-    await prefs.setInt('notificationInterval', intervalInSeconds);
+    int intervalInMinutes = _selectedHours * 60 + _selectedMinutes;
+    await UserPreferencesManager.saveInterval(intervalInMinutes);
   }
 
   @override

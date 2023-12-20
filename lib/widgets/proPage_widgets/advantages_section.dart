@@ -8,7 +8,7 @@ class AdvantagesSection extends StatelessWidget {
   List<String> getTranslatedAdvantages() {
     return [
       LanguageService.getTranslation('app_pro_adv1') ?? 'Disable ads',
-      LanguageService.getTranslation('app_pro_adv2') ?? 'Configure own settings',
+      //LanguageService.getTranslation('app_pro_adv2') ?? 'Configure own settings',
       LanguageService.getTranslation('app_pro_adv3') ?? 'You can select your country',
       LanguageService.getTranslation('app_pro_adv4') ?? 'You can disable notifications on National Days and Holidays',
       LanguageService.getTranslation('app_pro_adv5') ?? 'Get further app improvements after BackPal updates',

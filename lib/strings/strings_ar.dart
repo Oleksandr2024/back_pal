@@ -36,6 +36,8 @@ Map<String, String> arabicStrings = {
   'app_pro_oneMonth': 'اشتراك لمدة شهر واحد',
   'app_pro_only': 'فقط',
   'app_pro_oneYear': 'اشتراك لمدة عام واحد',
+  'app_pro_buy': 'شراء',
+  'app_pro_temporaryNotification': 'مشتريات النسخة المحترفة غير متاحة مؤقتًا.',
 
   // Notification titles
   'notification_titles': 'قم بتقويم ظهرك!;ظهرك مستقيم!;BackPal، استقم!',

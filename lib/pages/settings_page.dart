@@ -32,7 +32,7 @@ class SettingsPage extends StatelessWidget {
         backgroundColor: Colors.grey[800],
         title: Text(
           LanguageService.getTranslation('app_settings') ?? 'Settings',
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 26.0,
             fontFamily: 'Montserrat',
             color: Colors.white,
@@ -68,12 +68,6 @@ class SettingsPage extends StatelessWidget {
                   DailyEndTimeRow(
                     timeChangeHandler: timeChangeHandler,
                   ),
-
-                  // Daily start time Row
-                  // DailyStartTimeRow(),
-                  // const SizedBox(height: 20.0),
-                  // // Daily end time Row
-                  // DailyEndTimeRow(),
                   const SizedBox(height: 20.0),
                   // Include weekends Row
                   IncludeWeekendsRow(),
@@ -93,11 +87,9 @@ class SettingsPage extends StatelessWidget {
                   // isEnabled as false to disable
                   const SizedBox(height: 20.0),
                   // Switch off on holidays Row
-                  SwitchOffOnHolidays(isEnabled: false),
+                  SwitchOffOnHolidays(isEnabled: true),
                   // isEnabled as false to disable
                   const SizedBox(height: 20.0),
-                  // Disable certain days Row
-                  // DisableDaysRow(),
                 ],
               ),
             ],

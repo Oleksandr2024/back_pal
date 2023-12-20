@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:back_pal/services/language_service.dart';
 import 'package:back_pal/services/notification_service.dart';
-import 'package:shared_preferences/shared_preferences.dart'; //added
 import 'package:back_pal/utilities/dailyTimeChangeHandler.dart'; //added
-import 'package:back_pal/services/preferences_manager.dart';
+import 'package:back_pal/services/user_preferences_manager.dart';
 
 
 class DailyStartTimeRow extends StatefulWidget {
   final TimeChangeHandler timeChangeHandler;
   final NotificationService notificationService;
-  final bool isRunning; // Add this
+  final bool isRunning;
 
   DailyStartTimeRow({
     required this.timeChangeHandler,
     required this.notificationService,
-    required this.isRunning, // Add this
+    required this.isRunning,
   });
 
   @override
@@ -24,22 +23,9 @@ class DailyStartTimeRow extends StatefulWidget {
 class _DailyStartTimeRowState extends State<DailyStartTimeRow> {
   int _selectedHours = 9;
   int _selectedMinutes = 0;
-  //String _selectedAmPm = 'a.m.';
-
-
-  // void _onStartTimeChanged() async {
-  //   await PreferencesManager().saveStartTime(_selectedHours, _selectedMinutes);
-  //   widget.timeChangeHandler.onStartTimeChanged(_selectedHours, _selectedMinutes);
-  //
-  //   // Cancel any existing notifications
-  //   widget.notificationService.cancelAllNotifications();
-  //
-  //   // Start new notifications with the updated start time
-  //   widget.notificationService.startScheduledNotifications();
-  // }
 
   void _onStartTimeChanged() async {
-    await PreferencesManager().saveStartTime(_selectedHours, _selectedMinutes);
+    await UserPreferencesManager.saveStartTime(_selectedHours, _selectedMinutes);
 
     if (widget.isRunning) {
       widget.notificationService.cancelAllNotifications();

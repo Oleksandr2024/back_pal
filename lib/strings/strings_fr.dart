@@ -36,6 +36,8 @@ Map<String, String> frenchStrings = {
 'app_pro_oneMonth': 'Abonnement d\'un mois',
 'app_pro_only': 'seulement',
 'app_pro_oneYear': 'Abonnement d\'un an',
+'app_pro_buy': 'Acheter',
+'app_pro_temporaryNotification': 'Les achats Pro sont temporairement indisponibles.',
 
 // Notification titles
   'notification_titles': 'Redressez votre dos !;Dos droit !;BackPal, restez droit !',

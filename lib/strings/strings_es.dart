@@ -36,6 +36,8 @@ Map<String, String> spanishStrings = {
   'app_pro_oneMonth': 'Suscripción de un mes',
   'app_pro_only': 'solo',
   'app_pro_oneYear': 'Suscripción de un año',
+  'app_pro_buy': 'Comprar',
+  'app_pro_temporaryNotification': 'Las compras Pro están temporalmente no disponibles.',
 
   //Notification titles
   'notification_titles': '¡Endereza tu espalda!;¡Espalda Recta!;¡BackPal, mantente recto!',

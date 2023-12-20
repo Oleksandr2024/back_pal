@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:back_pal/services/language_service.dart';
+import 'package:back_pal/services/user_preferences_manager.dart';
 
 class SwitchOffOnHolidays extends StatefulWidget {
   final bool isEnabled; // To control the state
@@ -11,7 +12,22 @@ class SwitchOffOnHolidays extends StatefulWidget {
 }
 
 class _SwitchOffOnHolidaysState extends State<SwitchOffOnHolidays> {
-  bool switchOffOnHolidays = false; // Default value
+  bool switchOffOnHolidays = true; // Default value
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreference();
+  }
+
+  Future<void> _loadPreference() async {
+    switchOffOnHolidays = await UserPreferencesManager.getIncludeWeekends();
+    setState(() {});
+  }
+
+  Future<void> _savePreference(bool value) async {
+    await UserPreferencesManager.saveIncludeWeekends(value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,14 +45,24 @@ class _SwitchOffOnHolidaysState extends State<SwitchOffOnHolidays> {
         Switch(
           value: switchOffOnHolidays,
           onChanged: widget.isEnabled
-              ? (bool newValue) {
-            setState(() {
-              switchOffOnHolidays = newValue;
-            });
+              ? (bool newValue) async {
+            setState(() => switchOffOnHolidays = newValue);
+            await _savePreference(newValue);
           }
               : null, // Disable if not enabled
           activeColor: Colors.green,
         ),
+        // Switch(
+        //   value: switchOffOnHolidays,
+        //   onChanged: widget.isEnabled
+        //       ? (bool newValue) {
+        //     setState(() {
+        //       switchOffOnHolidays = newValue;
+        //     });
+        //   }
+        //       : null, // Disable if not enabled
+        //   activeColor: Colors.green,
+        // ),
       ],
     );
   }

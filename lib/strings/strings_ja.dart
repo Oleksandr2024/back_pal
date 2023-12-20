@@ -37,6 +37,8 @@ Map<String, String> japaneseStrings = {
   'app_pro_oneMonth': '1か月のサブスクリプション',
   'app_pro_only': 'のみ',
   'app_pro_oneYear': '1年のサブスクリプション',
+  'app_pro_buy': '購入',
+  'app_pro_temporaryNotification': 'Pro の購入は一時的に利用できません。',
 
   // Notification titles
   'notification_titles': '背筋を伸ばして！;背筋をまっすぐに！;BackPal、まっすぐに立って！',

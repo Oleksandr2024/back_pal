@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:back_pal/services/language_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:back_pal/services/user_preferences_manager.dart';
 
 class NotificationService {
 
@@ -41,26 +42,6 @@ class NotificationService {
     }
   }
 
-  /// Schedules periodic notifications every 5 seconds.
-  // void startPeriodicNotifications() {
-  //   // Schedule periodic notifications every 5 seconds
-  //   const Duration interval = Duration(seconds: 5);
-  //
-  //   // Use a repeating method to trigger notifications every 5 seconds
-  //   flutterLocalNotificationsPlugin.periodicallyShow(
-  //     0,
-  //     'Repeating Notification',
-  //     'This notification repeats every 5 seconds.',
-  //     RepeatInterval.everyMinute, // Adjust the interval as needed
-  //     NotificationDetails(
-  //       android: AndroidNotificationDetails(
-  //         channelId,
-  //         channelName,
-  //         importance: Importance.max,
-  //       ),
-  //     ),
-  //   );
-  // }
 
   /// Shows a notification with the given [title] and [body].
   Future<void> showNotification(String title, String body) async {
@@ -95,96 +76,102 @@ class NotificationService {
     return date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
   }
 
-
-  // void startTimer(Duration interval, int startHour, int endHour) {
-  //   Timer timer = Timer.periodic(interval, (Timer timer) {
-  //     final now = DateTime.now();
-  //     if (now.hour >= startHour && now.hour < endHour && !isWeekend(now)) {
-  //       showNotification(
-  //         'Notification Title',
-  //         'Notification Body',
-  //       );
-  //     }
-  //   });
-  //
-  //   subsequentTimers.add(timer); // Keep track of the subsequent timer
-  // }
-
   void startScheduledNotifications() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int intervalInSeconds = prefs.getInt('notificationInterval') ?? 1800; // Default to 30 minutes
-    int startHour = prefs.getInt('startHour') ?? 9; // Default to 9:00 AM
-    int startMinute = prefs.getInt('startMinute') ?? 0;
-    final interval = Duration(seconds: intervalInSeconds);
-    //final interval = Duration(seconds: 5); //for testing needs - comment two rows above to test
-
     final now = DateTime.now();
-    // final startHour = 0;
-    // final startMinute = 0;
-    final endHour = 23;
-    final endMinute = 0;
-
-
-    if (!isWeekend(now)) {
-      DateTime scheduledTime = calculateNextScheduledTime(now, startHour, startMinute, endHour, endMinute, interval);
-
-      // Calculate the initial delay until the next scheduled notification
-      final initialDelay = scheduledTime.difference(now);
-
-      // Schedule the first notification
-      initialTimer = Timer(initialDelay, () {
-        showRandomNotification(); // Using showRandomNotification instead
-
-        // Schedule subsequent notifications with the specified interval
-        Timer subsequentTimer = Timer.periodic(interval, (Timer timer) {
-          showRandomNotification(); // Using showRandomNotification instead
-        });
-        subsequentTimers.add(subsequentTimer); // Keep track of subsequent timers
-      });
-    }
-
-    // ... rest of your code ...
+    await scheduleNextNotificationCycle(now);
   }
 
-  // void startScheduledNotifications() {
-  //   final now = DateTime.now();
-  //   final startHour = 0;
-  //   final startMinute = 0;
-  //   final endHour = 23;
-  //   final endMinute = 0;
-  //   final interval = Duration(seconds: 5);
+
+  Future<void> scheduleNextNotificationCycle(DateTime currentTime) async {
+    // Retrieve user preferences
+    final startHour = UserPreferencesManager.getStartHour();
+    final startMinute = UserPreferencesManager.getStartMinute();
+    final endHour = UserPreferencesManager.getEndHour();
+    final endMinute = UserPreferencesManager.getEndMinute();
+    final intervalMinutes = UserPreferencesManager.getInterval();
+    final includeWeekends = UserPreferencesManager.getIncludeWeekends();
+
+    // Convert interval to Duration
+    final interval = Duration(minutes: intervalMinutes);
+
+    // Calculate next start and end times
+    DateTime nextStartTime = calculateNextStartTime(currentTime, startHour, startMinute);
+    DateTime nextEndTime = DateTime(nextStartTime.year, nextStartTime.month, nextStartTime.day, endHour, endMinute);
+
+    // If the current time is before next end time
+    if (currentTime.isBefore(nextEndTime)) {
+      // Calculate initial delay for the first notification
+      final initialDelay = nextStartTime.isAfter(currentTime)
+          ? nextStartTime.difference(currentTime)
+          : Duration.zero;
+
+      // Schedule the first notification after the initial delay
+      initialTimer = Timer(initialDelay, () {
+        // Show the first notification and set up periodic notifications
+        showRandomNotification();
+        Timer subsequentTimer = Timer.periodic(interval, (Timer timer) {
+          final now = DateTime.now();
+          if (now.isBefore(nextEndTime)) {
+            showRandomNotification();
+          } else {
+            timer.cancel(); // Stop the timer at end time
+            // Schedule for next day if weekends are included or it's not a weekend
+            if (includeWeekends || !isWeekend(nextStartTime.add(Duration(days: 1)))) {
+              scheduleNextNotificationCycle(nextEndTime);
+            }
+          }
+        });
+        subsequentTimers.add(subsequentTimer); // Keep track of the timer
+      });
+    }
+  }
+  // Future<void> scheduleNextNotificationCycle(DateTime currentTime) async {
+  //   // Use UserPreferencesManager to get the preferences
+  //   final startHour = UserPreferencesManager.getStartHour();
+  //   final startMinute = UserPreferencesManager.getStartMinute();
+  //   final endHour = UserPreferencesManager.getEndHour();
+  //   final endMinute = UserPreferencesManager.getEndMinute();
+  //   final intervalDuration = Duration(minutes: UserPreferencesManager.getInterval()); // Changed to use getInterval()
   //
-  //   if (!isWeekend(now)) {
-  //     DateTime scheduledTime = calculateNextScheduledTime(now, startHour, startMinute, endHour, endMinute, interval);
+  //   DateTime nextStartTime = calculateNextStartTime(currentTime, startHour, startMinute);
+  //   DateTime nextEndTime = DateTime(nextStartTime.year, nextStartTime.month, nextStartTime.day, endHour, endMinute);
   //
-  //     // Calculate the initial delay until the next scheduled notification
-  //     final initialDelay = scheduledTime.difference(now);
+  //   bool includeWeekends = UserPreferencesManager.getIncludeWeekends();
   //
-  //     // Schedule the first notification
+  //   if (currentTime.isBefore(nextEndTime)) {
+  //     final initialDelay = nextStartTime.difference(currentTime);
   //     initialTimer = Timer(initialDelay, () {
-  //       showRandomNotification(); // Using showRandomNotification instead
+  //       showRandomNotification();
   //
-  //       // Schedule subsequent notifications with the specified interval
-  //       Timer subsequentTimer = Timer.periodic(interval, (Timer timer) {
-  //         showRandomNotification(); // Using showRandomNotification instead
+  //       Timer subsequentTimer = Timer.periodic(intervalDuration, (Timer timer) {
+  //         // ... (No changes in this part)
   //       });
-  //       subsequentTimers.add(subsequentTimer); // Keep track of subsequent timers
+  //       subsequentTimers.add(subsequentTimer);
   //     });
   //   }
   // }
 
-  //convert interval to human readable representation of the interval
-  String formatDuration(Duration duration) {
-    if (duration.inDays > 0) {
-      return '${duration.inDays} day(s)';
-    } else if (duration.inHours > 0) {
-      return '${duration.inHours} hour(s)';
-    } else if (duration.inMinutes > 0) {
-      return '${duration.inMinutes} minute(s)';
-    } else {
-      return '${duration.inSeconds} second(s)';
+
+  DateTime calculateNextStartTime(DateTime current, int startHour, int startMinute) {
+    DateTime nextStart = DateTime(current.year, current.month, current.day, startHour, startMinute);
+    if (current.isAfter(nextStart)) {
+      nextStart = nextStart.add(Duration(days: 1));
     }
+    return nextStart;
   }
+
+  //convert interval to human readable representation of the interval
+  // String formatDuration(Duration duration) {
+  //   if (duration.inDays > 0) {
+  //     return '${duration.inDays} day(s)';
+  //   } else if (duration.inHours > 0) {
+  //     return '${duration.inHours} hour(s)';
+  //   } else if (duration.inMinutes > 0) {
+  //     return '${duration.inMinutes} minute(s)';
+  //   } else {
+  //     return '${duration.inSeconds} second(s)';
+  //   }
+  // }
 
   DateTime calculateNextScheduledTime(
       DateTime current, int startHour, int startMinute, int endHour, int endMinute, Duration interval) {

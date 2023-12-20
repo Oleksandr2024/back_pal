@@ -38,6 +38,8 @@ Map<String, String> englishStrings = {
   'app_pro_only': 'only',
 //need to think about USD and US$
   'app_pro_oneYear': 'One year subscription',
+  'app_pro_buy': 'Buy', // modified: added this
+  'app_pro_temporaryNotification': 'Pro purchases are temporarily unavailable.',  // modified: added this
 
   // Notification titles
   'notification_titles': 'Straighten Your Back!; Back Straight!; BackPal, Stay Straight!',

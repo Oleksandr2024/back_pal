@@ -1,3 +1,4 @@
+//PreferencesManager handles general app settings like selected language and other app-wide preferences.
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesManager {
@@ -45,10 +46,10 @@ class PreferencesManager {
     await _prefs.setInt(_intervalKey, interval);
   }
 
-  Future<void> saveStartTime(int hour, int minute) async {
-    await _prefs.setInt('startHour', hour);
-    await _prefs.setInt('startMinute', minute);
-  }
+  // Future<void> saveStartTime(int hour, int minute) async {
+  //   await _prefs.setInt('startHour', hour);
+  //   await _prefs.setInt('startMinute', minute);
+  // }
 
   int getStartHour() {
     return _prefs.getInt('startHour') ?? 9; // Default start hour

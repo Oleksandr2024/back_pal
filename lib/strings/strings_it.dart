@@ -36,6 +36,8 @@ Map<String, String> italianStrings = {
 'app_pro_oneMonth': 'Abbonamento mensile',
 'app_pro_only': 'solo',
 'app_pro_oneYear': 'Abbonamento annuale',
+'app_pro_buy': 'Acquistare',
+'app_pro_temporaryNotification': 'Gli acquisti Pro sono temporaneamente non disponibili.',
 
   // Notification titles
   'notification_titles': 'Raddrizza la schiena!;Schiena Dritta!;BackPal, Rimani Dritto!',

@@ -37,6 +37,8 @@ Map<String, String> koreanStrings = {
   'app_pro_oneMonth': '1개월 구독',
   'app_pro_only': '만',
   'app_pro_oneYear': '1년 구독',
+  'app_pro_buy': '구입',
+  'app_pro_temporaryNotification': 'Pro 구매는 일시적으로 사용할 수 없습니다.',
 
   // Notification titles
   'notification_titles': '활강척을 펴세요!;등을 곧게!;BackPal, 곧게 서 있어요!',

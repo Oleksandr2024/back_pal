@@ -37,6 +37,8 @@ Map<String, String> chineseStrings = {
   'app_pro_oneMonth': '一个月的订阅',
   'app_pro_only': '仅',
   'app_pro_oneYear': '一年的订阅',
+  'app_pro_buy': '购买',
+  'app_pro_temporaryNotification': 'Pro 购买暂时不可用。',
 
   // Notification titles
   'notification_titles': '挺直你的背！;保持背部挺直！;BackPal，保持挺直！',

@@ -1,50 +1,27 @@
-// import 'package:flutter/material.dart';
-// import 'package:back_pal/services/language_service.dart';
-// import 'package:back_pal/main.dart';
-//
-// class LanguageSelectionPage extends StatefulWidget {
-//   @override
-//   _LanguageSelectionPageState createState() => _LanguageSelectionPageState();
-// }
-//
-// class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
-//   String selectedLanguage = 'English'; // Default language
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         //title: Text(translations['select_language'] ?? 'Select Language'), //Undefined name 'translations'.
-//         title: Text(LanguageService.getTranslation('select_language') ?? 'Select Language'),
-//
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             //Text(translations['select_language'] ?? 'Select your preferred language:'), //Undefined name 'translations'.
-//             Text(LanguageService.getTranslation('select_language') ?? 'Select Language'),
-//
-//             SizedBox(height: 20),
-//             ElevatedButton(
-//               onPressed: () async {
-//                 await LanguageService.loadTranslations(Locale('en', 'US'));
-//                 MyApp.setLocale(context, Locale('en', 'US'));
-//               },
-//               child: Text(LanguageService.getTranslation('english') ?? 'English'),
-//             ),
-//
-//             ElevatedButton(
-//               onPressed: () async {
-//                 await LanguageService.loadTranslations(Locale('ua', 'UA'));
-//                 MyApp.setLocale(context, Locale('ua', 'UA'));
-//               },
-//               child: Text(LanguageService.getTranslation('ukrainian') ?? 'Українська'),
-//             ),
-//             // Add more language buttons as needed
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+
+    backgroundColor: Colors.grey[850], // Consistent background color
+    bottomNavigationBar: Padding(
+      padding: EdgeInsets.all(10.0),
+      child: Center( // Center the button
+        child: Container( // Control the width of the button
+          width: MediaQuery.of(context).size.width * 0.8, // 80% of screen width
+          child: ElevatedButton(
+            onPressed: () => _showProPurchaseDialog(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF4AFF2F),
+              foregroundColor: Colors.pink[400],
+              textStyle: TextStyle(
+                fontSize: 19.0,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Montserrat',
+              ),
+            ),
+            child: Text(
+              'Buy',
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
+        ),
+      ),
+    ),
+

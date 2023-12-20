@@ -7,11 +7,22 @@ import 'package:back_pal/services/language_manager.dart';
 import 'package:back_pal/services/language_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:back_pal/services/preferences_manager.dart';
+import 'package:back_pal/services/user_preferences_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await PreferencesManager().init();
-  await LanguageManager().init(PreferencesManager());
+
+  // Initialize the main preferences manager
+  final preferencesManager = PreferencesManager();
+  await preferencesManager.init();
+
+  // Initialize the UserPreferencesManager
+  await UserPreferencesManager.init();  // Corrected
+
+  // Initialize and set the language manager
+  final languageManager = LanguageManager();
+  await languageManager.init(preferencesManager);
+
   runApp(MyApp());
 }
 

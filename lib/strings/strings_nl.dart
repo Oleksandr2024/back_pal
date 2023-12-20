@@ -36,6 +36,8 @@ Map<String, String> dutchStrings = {
   'app_pro_oneMonth': 'Een maand abonnement',
   'app_pro_only': 'alleen',
   'app_pro_oneYear': 'Een jaar abonnement',
+  'app_pro_buy': 'Kopen',
+  'app_pro_temporaryNotification': 'Pro-aankopen zijn tijdelijk niet beschikbaar.',
 
   // Notification titles
   'notification_titles': 'Rek je rug!;Rug recht!;BackPal, blijf recht!',

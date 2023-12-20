@@ -3,6 +3,7 @@ import 'package:back_pal/services/language_service.dart';
 import 'package:shared_preferences/shared_preferences.dart'; //added
 import 'package:back_pal/utilities/dailyTimeChangeHandler.dart'; //added
 import 'package:back_pal/services/preferences_manager.dart'; //added
+import 'package:back_pal/services/user_preferences_manager.dart';
 
 class DailyEndTimeRow extends StatefulWidget {
   final TimeChangeHandler timeChangeHandler; //added
@@ -30,6 +31,7 @@ class _DailyEndTimeRowState extends State<DailyEndTimeRow> {
     if (_selectedHours < startHour || (_selectedHours == startHour && _selectedMinutes < startMinute)) {
       _showErrorMessage();
     } else {
+      await UserPreferencesManager.saveEndTime(_selectedHours, _selectedMinutes);
       widget.timeChangeHandler.onEndTimeChanged(_selectedHours, _selectedMinutes);
     }
   }
