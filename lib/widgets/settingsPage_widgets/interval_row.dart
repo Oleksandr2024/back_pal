@@ -19,6 +19,14 @@ class _IntervalReminderRowState extends State<IntervalReminderRow> {
   //   await prefs.setInt('notificationInterval', intervalInSeconds);
   // }
 
+  @override
+  void initState() {
+    super.initState();
+    int intervalMinutes = UserPreferencesManager.getInterval();
+    _selectedHours = intervalMinutes ~/ 60;
+    _selectedMinutes = intervalMinutes % 60;
+  }
+
   Future<void> _saveIntervalSetting() async {
     int intervalInMinutes = _selectedHours * 60 + _selectedMinutes;
     await UserPreferencesManager.saveInterval(intervalInMinutes);

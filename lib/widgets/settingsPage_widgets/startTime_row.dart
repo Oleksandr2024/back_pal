@@ -35,6 +35,13 @@ class _DailyStartTimeRowState extends State<DailyStartTimeRow> {
     widget.timeChangeHandler.onStartTimeChanged(_selectedHours, _selectedMinutes);
   }
 
+  @override //added
+  void initState() {
+    super.initState();
+    _selectedHours = UserPreferencesManager.getStartHour();
+    _selectedMinutes = UserPreferencesManager.getStartMinute();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(

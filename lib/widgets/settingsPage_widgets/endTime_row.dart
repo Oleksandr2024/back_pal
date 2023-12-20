@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:back_pal/services/language_service.dart';
 import 'package:shared_preferences/shared_preferences.dart'; //added
 import 'package:back_pal/utilities/dailyTimeChangeHandler.dart'; //added
-import 'package:back_pal/services/preferences_manager.dart'; //added
 import 'package:back_pal/services/user_preferences_manager.dart';
 
 class DailyEndTimeRow extends StatefulWidget {
@@ -19,10 +18,18 @@ class _DailyEndTimeRowState extends State<DailyEndTimeRow> {
   int startHour = 0; // Declare startHour here
   int startMinute = 0; // Declare startMinute here
 
+  // @override
+  // void initState() {
+  // super.initState();
+  // _retrieveStartTime(); // Load start time on widget initialization
+  // }
+
   @override
   void initState() {
-  super.initState();
-  _retrieveStartTime(); // Load start time on widget initialization
+    super.initState();
+    _selectedHours = UserPreferencesManager.getEndHour();
+    _selectedMinutes = UserPreferencesManager.getEndMinute();
+    _retrieveStartTime();
   }
 
   void _onEndTimeChanged() async {

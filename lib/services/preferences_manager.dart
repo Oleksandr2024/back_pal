@@ -37,19 +37,12 @@ class PreferencesManager {
   }
 
   Future<void> saveSelectedLanguage(String language) async {
-    //print('here saveSelectedLanguage to: ');
-    //print(language); //works properly
     await _prefs.setString(_selectedLanguageKey, language);
   }
 
   Future<void> saveInterval(int interval) async {
     await _prefs.setInt(_intervalKey, interval);
   }
-
-  // Future<void> saveStartTime(int hour, int minute) async {
-  //   await _prefs.setInt('startHour', hour);
-  //   await _prefs.setInt('startMinute', minute);
-  // }
 
   int getStartHour() {
     return _prefs.getInt('startHour') ?? 9; // Default start hour

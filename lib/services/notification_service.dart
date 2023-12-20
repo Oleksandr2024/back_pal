@@ -2,7 +2,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:async';
 import 'dart:math';
 import 'package:back_pal/services/language_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:back_pal/services/user_preferences_manager.dart';
 
 class NotificationService {
@@ -125,32 +124,6 @@ class NotificationService {
       });
     }
   }
-  // Future<void> scheduleNextNotificationCycle(DateTime currentTime) async {
-  //   // Use UserPreferencesManager to get the preferences
-  //   final startHour = UserPreferencesManager.getStartHour();
-  //   final startMinute = UserPreferencesManager.getStartMinute();
-  //   final endHour = UserPreferencesManager.getEndHour();
-  //   final endMinute = UserPreferencesManager.getEndMinute();
-  //   final intervalDuration = Duration(minutes: UserPreferencesManager.getInterval()); // Changed to use getInterval()
-  //
-  //   DateTime nextStartTime = calculateNextStartTime(currentTime, startHour, startMinute);
-  //   DateTime nextEndTime = DateTime(nextStartTime.year, nextStartTime.month, nextStartTime.day, endHour, endMinute);
-  //
-  //   bool includeWeekends = UserPreferencesManager.getIncludeWeekends();
-  //
-  //   if (currentTime.isBefore(nextEndTime)) {
-  //     final initialDelay = nextStartTime.difference(currentTime);
-  //     initialTimer = Timer(initialDelay, () {
-  //       showRandomNotification();
-  //
-  //       Timer subsequentTimer = Timer.periodic(intervalDuration, (Timer timer) {
-  //         // ... (No changes in this part)
-  //       });
-  //       subsequentTimers.add(subsequentTimer);
-  //     });
-  //   }
-  // }
-
 
   DateTime calculateNextStartTime(DateTime current, int startHour, int startMinute) {
     DateTime nextStart = DateTime(current.year, current.month, current.day, startHour, startMinute);
@@ -159,19 +132,6 @@ class NotificationService {
     }
     return nextStart;
   }
-
-  //convert interval to human readable representation of the interval
-  // String formatDuration(Duration duration) {
-  //   if (duration.inDays > 0) {
-  //     return '${duration.inDays} day(s)';
-  //   } else if (duration.inHours > 0) {
-  //     return '${duration.inHours} hour(s)';
-  //   } else if (duration.inMinutes > 0) {
-  //     return '${duration.inMinutes} minute(s)';
-  //   } else {
-  //     return '${duration.inSeconds} second(s)';
-  //   }
-  // }
 
   DateTime calculateNextScheduledTime(
       DateTime current, int startHour, int startMinute, int endHour, int endMinute, Duration interval) {

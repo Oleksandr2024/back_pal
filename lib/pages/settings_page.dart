@@ -11,8 +11,9 @@ import 'package:back_pal/widgets/settingsPage_widgets/switchOffOnHolidays_row.da
 import 'package:back_pal/services/language_service.dart';
 import 'package:back_pal/services/notification_service.dart';
 import 'package:back_pal/utilities/dailyTimeChangeHandler.dart'; //added
+import 'package:back_pal/services/user_preferences_manager.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   final TimeChangeHandler timeChangeHandler;
   final NotificationService notificationService;
   final Function(bool) updateIsRunningCallback;
@@ -24,6 +25,39 @@ class SettingsPage extends StatelessWidget {
     required this.updateIsRunningCallback,
     required this.isRunning, // Add this
   });
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  //added--------------------------------------------
+  late int startHour;
+  late int startMinute;
+  late int endHour;
+  late int endMinute;
+  late int intervalMinutes;
+  late bool includeWeekends;
+
+  @override
+  void initState() {
+    super.initState();
+    loadPreferences();
+  }
+
+  void loadPreferences() {
+    startHour = UserPreferencesManager.getStartHour();
+    startMinute = UserPreferencesManager.getStartMinute();
+    endHour = UserPreferencesManager.getEndHour();
+    endMinute = UserPreferencesManager.getEndMinute();
+    intervalMinutes = UserPreferencesManager.getInterval();
+    includeWeekends = UserPreferencesManager.getIncludeWeekends();
+    // Update state to refresh UI
+    setState(() {});
+  }
+
+//added -----------------------------------
+
 
   @override
   Widget build(BuildContext context) {
@@ -60,13 +94,13 @@ class SettingsPage extends StatelessWidget {
                   IntervalReminderRow(),
                   const SizedBox(height: 20.0),
                   DailyStartTimeRow(
-                    timeChangeHandler: timeChangeHandler,
-                    notificationService: notificationService,
-                    isRunning: isRunning,
+                    timeChangeHandler: widget.timeChangeHandler,
+                    notificationService: widget.notificationService,
+                    isRunning: widget.isRunning,
                   ),
                   const SizedBox(height: 20.0),
                   DailyEndTimeRow(
-                    timeChangeHandler: timeChangeHandler,
+                    timeChangeHandler: widget.timeChangeHandler,
                   ),
                   const SizedBox(height: 20.0),
                   // Include weekends Row

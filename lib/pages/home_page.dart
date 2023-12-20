@@ -228,6 +228,10 @@ class _HomePageState extends State<HomePage> {
                           updateIsRunningCallback: (bool value) {
                             setState(() {
                               isRunning = value;
+                              if (isRunning) {
+                                // Reschedule notifications with new settings
+                                notificationService.startScheduledNotifications();
+                              }
                             });
                           },
                           isRunning: isRunning,
