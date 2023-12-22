@@ -22,7 +22,7 @@ class PreferencesManager {
 
   Future<void> loadPreferences() async {
     await loadSelectedLanguage();
-    await loadInterval();
+    //await loadInterval();
     // Load other preferences as needed
   }
 
@@ -31,26 +31,26 @@ class PreferencesManager {
     return _prefs.getString(_selectedLanguageKey) ?? 'en'; //not issue
   }
 
-  Future<void> loadInterval() async {
-    int? interval = _prefs.getInt(_intervalKey);
-    // Do something with the loaded interval value
-  }
+  // Future<void> loadInterval() async {
+  //   int? interval = _prefs.getInt(_intervalKey);
+  //   // Do something with the loaded interval value
+  // }
 
   Future<void> saveSelectedLanguage(String language) async {
     await _prefs.setString(_selectedLanguageKey, language);
   }
 
-  Future<void> saveInterval(int interval) async {
-    await _prefs.setInt(_intervalKey, interval);
-  }
+  // Future<void> saveInterval(int interval) async {
+  //   await _prefs.setInt(_intervalKey, interval);
+  // }
 
-  int getStartHour() {
-    return _prefs.getInt('startHour') ?? 9; // Default start hour
-  }
-
-  int getStartMinute() {
-    return _prefs.getInt('startMinute') ?? 0; // Default start minute
-  }
+  // int getStartHour() {
+  //   return _prefs.getInt('startHour') ?? 9; // Default start hour
+  // }
+  //
+  // int getStartMinute() {
+  //   return _prefs.getInt('startMinute') ?? 0; // Default start minute
+  // }
 // Add more methods for other preferences
 }
 

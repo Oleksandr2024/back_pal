@@ -1,3 +1,4 @@
+import 'package:back_pal/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:back_pal/pages/loading_page.dart';
 import 'package:back_pal/pages/home_page.dart';

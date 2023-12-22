@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:back_pal/services/language_service.dart';
-import 'package:shared_preferences/shared_preferences.dart'; //added
-import 'package:back_pal/utilities/dailyTimeChangeHandler.dart'; //added
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:back_pal/services/user_preferences_manager.dart';
+import 'package:back_pal/services/notification_service.dart';
 
 class DailyEndTimeRow extends StatefulWidget {
-  final TimeChangeHandler timeChangeHandler; //added
-  DailyEndTimeRow({required this.timeChangeHandler});  //added
+     final NotificationService notificationService;
+     final bool isRunning;
+
+  const DailyEndTimeRow({
+    required this.notificationService,
+    required this.isRunning
+  });
 
   @override
   _DailyEndTimeRowState createState() => _DailyEndTimeRowState();
@@ -18,12 +23,6 @@ class _DailyEndTimeRowState extends State<DailyEndTimeRow> {
   int startHour = 0; // Declare startHour here
   int startMinute = 0; // Declare startMinute here
 
-  // @override
-  // void initState() {
-  // super.initState();
-  // _retrieveStartTime(); // Load start time on widget initialization
-  // }
-
   @override
   void initState() {
     super.initState();
@@ -32,14 +31,42 @@ class _DailyEndTimeRowState extends State<DailyEndTimeRow> {
     _retrieveStartTime();
   }
 
+  // void _onEndTimeChanged() async {
+  //   print('end time changed: $_selectedHours $_selectedMinutes');
+  //   await _retrieveStartTime(); // Ensure this is called and completed before comparison
+  //
+  //   if (_selectedHours < startHour || (_selectedHours == startHour && _selectedMinutes < startMinute)) {
+  //     _showErrorMessage();
+  //   } else {
+  //     await UserPreferencesManager.saveEndTime(_selectedHours, _selectedMinutes); // Save new end time
+  //
+  //     if (widget.isRunning) {
+  //       print('endTime changed, case is running:');
+  //       widget.notificationService.cancelAllNotifications();
+  //       widget.notificationService.startScheduledNotifications();
+  //     }
+  //   }
+  // }
+
   void _onEndTimeChanged() async {
-    await _retrieveStartTime(); // Ensure this is called and completed before comparison
+    await _retrieveStartTime(); // Ensure start time is retrieved for comparison
 
     if (_selectedHours < startHour || (_selectedHours == startHour && _selectedMinutes < startMinute)) {
-      _showErrorMessage();
+      _showErrorMessage(); // Show error message if end time is invalid
+      // Revert to previous valid end time in UI
+      setState(() {
+        _selectedHours = UserPreferencesManager.getEndHour();
+        _selectedMinutes = UserPreferencesManager.getEndMinute();
+      });
     } else {
+      // Save new end time if it's valid
       await UserPreferencesManager.saveEndTime(_selectedHours, _selectedMinutes);
-      widget.timeChangeHandler.onEndTimeChanged(_selectedHours, _selectedMinutes);
+      if (widget.isRunning) {
+        // Restart notifications
+        print('endTime changed, case is running:');
+        widget.notificationService.cancelAllNotifications();
+        widget.notificationService.startScheduledNotifications();
+      }
     }
   }
 
@@ -48,20 +75,6 @@ class _DailyEndTimeRowState extends State<DailyEndTimeRow> {
     startHour = prefs.getInt('startHour') ?? 9;
     startMinute = prefs.getInt('startMinute') ?? 0;
   }
-
-
-  // void _onEndTimeChanged() async { // added 3
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   int startHour = prefs.getInt('startHour') ?? 9; // Default value if not set
-  //   int startMinute = prefs.getInt('startMinute') ?? 0; // Default value if not set
-  //
-  //   if (_selectedHours < startHour || (_selectedHours == startHour && _selectedMinutes < startMinute)) {
-  //     _showErrorMessage();
-  //   } else {
-  //     // If the time is valid, save the end time
-  //     widget.timeChangeHandler.onEndTimeChanged(_selectedHours, _selectedMinutes);
-  //   }
-  // }
 
   void _showErrorMessage() {
     showDialog(

@@ -14,13 +14,13 @@ import 'package:back_pal/utilities/dailyTimeChangeHandler.dart'; //added
 import 'package:back_pal/services/user_preferences_manager.dart';
 
 class SettingsPage extends StatefulWidget {
-  final TimeChangeHandler timeChangeHandler;
+  //final TimeChangeHandler timeChangeHandler;
   final NotificationService notificationService;
   final Function(bool) updateIsRunningCallback;
   final bool isRunning; // Add this
 
-  SettingsPage({
-    required this.timeChangeHandler,
+  SettingsPage({super.key,
+    //required this.timeChangeHandler,
     required this.notificationService,
     required this.updateIsRunningCallback,
     required this.isRunning, // Add this
@@ -94,17 +94,21 @@ class _SettingsPageState extends State<SettingsPage> {
                   IntervalReminderRow(),
                   const SizedBox(height: 20.0),
                   DailyStartTimeRow(
-                    timeChangeHandler: widget.timeChangeHandler,
+                    //timeChangeHandler: widget.timeChangeHandler,
                     notificationService: widget.notificationService,
                     isRunning: widget.isRunning,
                   ),
                   const SizedBox(height: 20.0),
                   DailyEndTimeRow(
-                    timeChangeHandler: widget.timeChangeHandler,
+                    notificationService: widget.notificationService,
+                    isRunning: widget.isRunning,
                   ),
                   const SizedBox(height: 20.0),
                   // Include weekends Row
-                  IncludeWeekendsRow(),
+                  IncludeWeekendsRow(
+                    notificationService: widget.notificationService,
+                    isRunning: widget.isRunning,
+                  ),
                   const SizedBox(height: 20.0),
                   //double boxes
 

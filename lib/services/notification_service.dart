@@ -34,7 +34,7 @@ class NotificationService {
         initializationSettings,
         onDidReceiveNotificationResponse: (NotificationResponse notificationResponse) async {}, ///don't know if I need this
       );
-
+      print('notifications initialized'); //works 1
       // startPeriodicNotifications(); // to start sending notifications when app starts
     } catch (e) {
       print('Error initializing notifications: $e');
@@ -66,23 +66,18 @@ class NotificationService {
       body,
       notificationDetails,
     );
+    print('inside showNotification: ');
   }
 
   Timer? initialTimer; // Keep track of the initial timer
   List<Timer> subsequentTimers = []; // Keep track of subsequent timers
   ///check if it is weekend or not
   bool isWeekend(DateTime date) {
-    return date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
+    return date.weekday == DateTime.friday || date.weekday == DateTime.sunday;
   }
 
   void startScheduledNotifications() async {
     final now = DateTime.now();
-    await scheduleNextNotificationCycle(now);
-  }
-
-
-  Future<void> scheduleNextNotificationCycle(DateTime currentTime) async {
-    // Retrieve user preferences
     final startHour = UserPreferencesManager.getStartHour();
     final startMinute = UserPreferencesManager.getStartMinute();
     final endHour = UserPreferencesManager.getEndHour();
@@ -90,62 +85,140 @@ class NotificationService {
     final intervalMinutes = UserPreferencesManager.getInterval();
     final includeWeekends = UserPreferencesManager.getIncludeWeekends();
 
-    // Convert interval to Duration
-    final interval = Duration(minutes: intervalMinutes);
+    final intervalDuration = Duration(minutes: intervalMinutes);
+    DateTime nextStartTime = calculateNextStartTime(now, startHour, startMinute);
+    DateTime nextEndTime = DateTime(now.year, now.month, now.day, endHour, endMinute);
 
-    // Calculate next start and end times
-    DateTime nextStartTime = calculateNextStartTime(currentTime, startHour, startMinute);
-    DateTime nextEndTime = DateTime(nextStartTime.year, nextStartTime.month, nextStartTime.day, endHour, endMinute);
-
-    // If the current time is before next end time
-    if (currentTime.isBefore(nextEndTime)) {
-      // Calculate initial delay for the first notification
-      final initialDelay = nextStartTime.isAfter(currentTime)
-          ? nextStartTime.difference(currentTime)
-          : Duration.zero;
-
-      // Schedule the first notification after the initial delay
-      initialTimer = Timer(initialDelay, () {
-        // Show the first notification and set up periodic notifications
-        showRandomNotification();
-        Timer subsequentTimer = Timer.periodic(interval, (Timer timer) {
-          final now = DateTime.now();
-          if (now.isBefore(nextEndTime)) {
-            showRandomNotification();
-          } else {
-            timer.cancel(); // Stop the timer at end time
-            // Schedule for next day if weekends are included or it's not a weekend
-            if (includeWeekends || !isWeekend(nextStartTime.add(Duration(days: 1)))) {
-              scheduleNextNotificationCycle(nextEndTime);
-            }
-          }
-        });
-        subsequentTimers.add(subsequentTimer); // Keep track of the timer
-      });
+    // Cancel any existing timers
+    initialTimer?.cancel();
+    for (var timer in subsequentTimers) {
+      timer.cancel();
     }
+    subsequentTimers.clear();
+
+    // Check if current time is during the notification period
+    if (now.isBefore(nextEndTime) && (includeWeekends || !isWeekend(now))) {
+      final timeUntilNextNotification = now.isBefore(nextStartTime)
+          ? nextStartTime.difference(now)
+          : intervalDuration - Duration(seconds: now.second, milliseconds: now.millisecond, microseconds: now.microsecond);
+
+      initialTimer = Timer(timeUntilNextNotification, () {
+        showRandomNotification();
+        setPeriodicNotifications(nextEndTime, intervalDuration);
+      });
+    } else {
+      // Schedule next notification for the next start time, considering weekends
+      scheduleNextStart(includeWeekends, startHour, startMinute, intervalDuration);
+    }
+  }
+
+  void setPeriodicNotifications(DateTime endDateTime, Duration interval) {
+    Timer periodicTimer = Timer.periodic(interval, (Timer t) {
+      final now = DateTime.now();
+      if (now.isBefore(endDateTime)) {
+        showRandomNotification();
+      } else {
+        t.cancel(); // Stop the timer after end time
+      }
+    });
+    subsequentTimers.add(periodicTimer);
+  }
+
+  void scheduleNextStart(bool includeWeekends, int startHour, int startMinute, Duration interval) {
+    DateTime nextDay = DateTime.now().add(Duration(days: 1));
+    while (isWeekend(nextDay) && !includeWeekends) {
+      nextDay = nextDay.add(Duration(days: 1));
+    }
+    DateTime nextStartTime = calculateNextStartTime(nextDay, startHour, startMinute);
+    final timeUntilStartNextDay = nextStartTime.difference(DateTime.now());
+    initialTimer = Timer(timeUntilStartNextDay, () {
+      showRandomNotification();
+      setPeriodicNotifications(DateTime(nextDay.year, nextDay.month, nextDay.day, UserPreferencesManager.getEndHour(), UserPreferencesManager.getEndMinute()), interval);
+    });
+  }
+  // void startScheduledNotifications() async {
+  //   final now = DateTime.now();
+  //   final startHour = UserPreferencesManager.getStartHour();
+  //   final startMinute = UserPreferencesManager.getStartMinute();
+  //   final endHour = UserPreferencesManager.getEndHour();
+  //   final endMinute = UserPreferencesManager.getEndMinute();
+  //   final intervalMinutes = UserPreferencesManager.getInterval();
+  //   final includeWeekends = UserPreferencesManager.getIncludeWeekends();
+  //
+  //   final intervalDuration = Duration(minutes: intervalMinutes);
+  //   DateTime nextStartTime = calculateNextStartTime(now, startHour, startMinute);
+  //   DateTime nextEndTime = DateTime(now.year, now.month, now.day, endHour, endMinute);
+  //
+  //   // Cancel any existing timers
+  //   initialTimer?.cancel();
+  //   subsequentTimers.forEach((timer) => timer.cancel());
+  //   subsequentTimers.clear();
+  //
+  //   // Check if current time is during the notification period
+  //   if (now.isBefore(nextEndTime) && (includeWeekends || !isWeekend(now))) {
+  //     final timeUntilNextNotification = now.isBefore(nextStartTime)
+  //         ? nextStartTime.difference(now)
+  //         : intervalDuration;
+  //     initialTimer = Timer(timeUntilNextNotification, () {
+  //       showRandomNotification();
+  //       Timer.periodic(intervalDuration, (Timer t) {
+  //         final now = DateTime.now();
+  //         if (now.isBefore(nextEndTime) && (includeWeekends || !isWeekend(now))) {
+  //           showRandomNotification();
+  //         } else {
+  //           t.cancel(); // Stop the timer after end time or on weekends
+  //         }
+  //       });
+  //     });
+  //   } else {
+  //     // Schedule next notification for the next start time, considering weekends
+  //     DateTime nextDay = now.add(Duration(days: 1));
+  //     while (isWeekend(nextDay) && !includeWeekends) {
+  //       nextDay = nextDay.add(Duration(days: 1));
+  //     }
+  //     nextStartTime = calculateNextStartTime(nextDay, startHour, startMinute);
+  //     final timeUntilStartNextDay = nextStartTime.difference(now);
+  //     initialTimer = Timer(timeUntilStartNextDay, () {
+  //       showRandomNotification();
+  //       Timer.periodic(intervalDuration, (Timer t) {
+  //         final now = DateTime.now();
+  //         DateTime todayEndTime = DateTime(now.year, now.month, now.day, endHour, endMinute);
+  //         if (now.isBefore(todayEndTime) && (includeWeekends || !isWeekend(now))) {
+  //           showRandomNotification();
+  //         } else {
+  //           t.cancel(); // Stop the timer after end time or on weekends
+  //         }
+  //       });
+  //     });
+  //   }
+  // }
+
+
+// Helper method to find the next weekday start time
+  DateTime findNextWeekdayStartTime(DateTime current, int startHour, int startMinute) {
+    DateTime nextStart = current.add(Duration(days: 1));
+    print('here 11 nextStart is: $nextStart');
+    while (isWeekend(nextStart)) {
+      nextStart = nextStart.add(Duration(days: 1));
+      print('nextStart if weekend is: $nextStart');
+    }
+    print('Daate here: is: $DateTime(nextStart.year, nextStart.month, nextStart.day, startHour, startMinute)');
+    return DateTime(nextStart.year, nextStart.month, nextStart.day, startHour, startMinute);
   }
 
   DateTime calculateNextStartTime(DateTime current, int startHour, int startMinute) {
-    DateTime nextStart = DateTime(current.year, current.month, current.day, startHour, startMinute);
-    if (current.isAfter(nextStart)) {
-      nextStart = nextStart.add(Duration(days: 1));
+    DateTime startToday = DateTime(current.year, current.month, current.day, startHour, startMinute);
+    DateTime endToday = DateTime(current.year, current.month, current.day, UserPreferencesManager.getEndHour(), UserPreferencesManager.getEndMinute());
+
+    if (current.isBefore(startToday)) {
+      return startToday;
+    } else if (current.isAfter(endToday)) {
+      return DateTime(current.year, current.month, current.day + 1, startHour, startMinute);
+    } else {
+      // Adjust nextStart to a time definitely in the past within today's active period
+      return startToday; //.subtract(Duration(seconds: 3));
     }
-    return nextStart;
   }
-
-  DateTime calculateNextScheduledTime(
-      DateTime current, int startHour, int startMinute, int endHour, int endMinute, Duration interval) {
-    DateTime nextScheduledTime = DateTime(current.year, current.month, current.day, startHour, startMinute);
-
-    while (nextScheduledTime.isBefore(current) ||
-        nextScheduledTime.hour >= endHour ||
-        (nextScheduledTime.hour == endHour && nextScheduledTime.minute >= endMinute)) {
-      nextScheduledTime = nextScheduledTime.add(interval);
-    }
-
-    return nextScheduledTime;
-  }
-
 
   Future<void> showRandomNotification() async { //added
     List<String> titles = LanguageService.getTranslationList('notification_titles');
@@ -156,6 +229,7 @@ class NotificationService {
     String randomMessage = messages[random.nextInt(messages.length)];
 
     await showNotification(randomTitle, randomMessage);
+    print('inside showRandomNotification: ');
   }
 
 

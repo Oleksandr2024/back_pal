@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:back_pal/services/language_service.dart';
 import 'package:back_pal/services/notification_service.dart';
-import 'package:back_pal/utilities/dailyTimeChangeHandler.dart'; //added
 import 'package:back_pal/services/user_preferences_manager.dart';
 
 
 class DailyStartTimeRow extends StatefulWidget {
-  final TimeChangeHandler timeChangeHandler;
   final NotificationService notificationService;
   final bool isRunning;
 
   DailyStartTimeRow({
-    required this.timeChangeHandler,
     required this.notificationService,
     required this.isRunning,
   });
@@ -32,7 +29,6 @@ class _DailyStartTimeRowState extends State<DailyStartTimeRow> {
       widget.notificationService.startScheduledNotifications();
     }
 
-    widget.timeChangeHandler.onStartTimeChanged(_selectedHours, _selectedMinutes);
   }
 
   @override //added

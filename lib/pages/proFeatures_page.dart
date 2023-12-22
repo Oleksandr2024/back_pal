@@ -96,22 +96,41 @@ class _ProFeaturesPageState extends State<ProFeaturesPage> {
                 ),
               ),
               SizedBox(height: 20.0),
+              // ElevatedButton(
+              //   onPressed: () => _showProPurchaseDialog(context),
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: Color(0xFF4AFF2F),
+              //     foregroundColor: Colors.pink[400],
+              //     textStyle: const TextStyle(
+              //       fontSize: 19.0,
+              //       fontWeight: FontWeight.bold,
+              //       fontFamily: 'Montserrat',
+              //     ),
+              //   ),
+              //   child: Text(
+              //     // 'Upgrade to Pro!' app_pro_buy
+              //     LanguageService.getTranslation('app_pro_buy') ?? 'Buy!',
+              //   ),
+              //
+              // ),
               ElevatedButton(
                 onPressed: () => _showProPurchaseDialog(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF4AFF2F),
-                  foregroundColor: Colors.pink[400],
+                  primary: Colors.red[700], // Change the background color to red
+                  onPrimary: Colors.white, // Change the text color to white
                   textStyle: const TextStyle(
                     fontSize: 19.0,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Montserrat',
                   ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0), // Add a slight corner radius
+                  ),
+                  elevation: 0, // Remove shadow if any
                 ),
                 child: Text(
-                  // 'Upgrade to Pro!' app_pro_buy
                   LanguageService.getTranslation('app_pro_buy') ?? 'Buy!',
                 ),
-
               ),
             ],
           ),

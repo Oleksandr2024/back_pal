@@ -30,6 +30,8 @@ class _IntervalReminderRowState extends State<IntervalReminderRow> {
   Future<void> _saveIntervalSetting() async {
     int intervalInMinutes = _selectedHours * 60 + _selectedMinutes;
     await UserPreferencesManager.saveInterval(intervalInMinutes);
+    print('interval in minutes is:');
+    print(intervalInMinutes);
   }
 
   @override
@@ -39,7 +41,7 @@ class _IntervalReminderRowState extends State<IntervalReminderRow> {
       children: [
         Text(
           LanguageService.getTranslation('app_settings_intervalReminder') ?? 'Interval reminder',
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 18.0,
             fontFamily: 'Montserrat',
             color: Colors.white,
@@ -92,11 +94,10 @@ class _IntervalReminderRowState extends State<IntervalReminderRow> {
       dropdownColor: Colors.grey[850], // Set background color
     );
   }
-
   Widget _buildMinutesDropdown() {
     return DropdownButton<int>(
       value: _selectedMinutes,
-      items: List.generate(11, (index) => (index + 1) * 5).map((int value) {
+      items: [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((int value) {
         return DropdownMenuItem<int>(
           value: value,
           child: Text(
@@ -111,16 +112,43 @@ class _IntervalReminderRowState extends State<IntervalReminderRow> {
       }).toList(),
       onChanged: (int? newValue) {
         setState(() {
-          _selectedMinutes = newValue!;
+          if (newValue != null) {
+            _selectedMinutes = newValue;
+            _saveIntervalSetting();
+          }
         });
-        _saveIntervalSetting(); //comment if you want to test
       },
-      // onChanged: (int? newValue) {
-      //   setState(() {
-      //     _selectedMinutes = newValue!;
-      //   });
-      // },
       dropdownColor: Colors.grey[850], // Set background color
     );
   }
+  // Widget _buildMinutesDropdown() {  // uncomment before production
+  //   return DropdownButton<int>(
+  //     value: _selectedMinutes,
+  //     items: List.generate(11, (index) => (index + 1) * 5).map((int value) {
+  //       return DropdownMenuItem<int>(
+  //         value: value,
+  //         child: Text(
+  //           value.toString().padLeft(2, '0'),
+  //           style: const TextStyle(
+  //             fontSize: 18.0,
+  //             fontFamily: 'Montserrat',
+  //             color: Colors.white,
+  //           ),
+  //         ),
+  //       );
+  //     }).toList(),
+  //     onChanged: (int? newValue) {
+  //       setState(() {
+  //         _selectedMinutes = newValue!;
+  //       });
+  //       _saveIntervalSetting(); //comment if you want to test
+  //     },
+  //     // onChanged: (int? newValue) {
+  //     //   setState(() {
+  //     //     _selectedMinutes = newValue!;
+  //     //   });
+  //     // },
+  //     dropdownColor: Colors.grey[850], // Set background color
+  //   );
+  // }
 }

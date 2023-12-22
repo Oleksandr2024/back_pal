@@ -4,8 +4,6 @@ import 'dart:async';
 import 'package:back_pal/services/notification_service.dart';
 import 'package:back_pal/services/language_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:back_pal/utilities/dailyTimeChangeHandler.dart';
-
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,7 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool isRunning = false; // State to track whether the process is running
   final NotificationService notificationService = NotificationService();
-  final TimeChangeHandler timeChangeHandler = TimeChangeHandler();
+ // final TimeChangeHandler timeChangeHandler = TimeChangeHandler();
   Timer? timer;
 
   // Method to update isRunning state
@@ -130,10 +128,10 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 7.0),
             ElevatedButton(
               onPressed: () async {
-                bool endTimeIsValid = await _isEndTimeValid();
+                bool endTimeIsValid = await _isEndTimeValid(); //checks if endTime comes later than startTime
                 if (!endTimeIsValid) {
                   // Show error message
-                  _showInvalidTimeError();
+                  _showInvalidTimeError(); //Shows dialog error message
                   return;
                 }
                 // Toggle the state and run the corresponding function
@@ -176,19 +174,21 @@ class _HomePageState extends State<HomePage> {
                 Navigator.pushNamed(context, '/pro');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF4AFF2F),
-                foregroundColor: Colors.pink[400],
+                primary: Colors.red[700], // Change the background color to red
+                onPrimary: Colors.white, // Change the text color to white
                 textStyle: const TextStyle(
                   fontSize: 19.0,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Montserrat',
                 ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0), // Add a slight corner radius
+                ),
+                elevation: 0, // Remove shadow if any
               ),
               child: Text(
-                 // 'Upgrade to Pro!'
                 LanguageService.getTranslation('app_upgrade') ?? 'Upgrade to Pro!',
               ),
-
             ),
             SizedBox(height: 20.0),
             // Navigation menu row
@@ -223,7 +223,7 @@ class _HomePageState extends State<HomePage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => SettingsPage(
-                          timeChangeHandler: timeChangeHandler,
+                          //timeChangeHandler: timeChangeHandler,
                           notificationService: notificationService,
                           updateIsRunningCallback: (bool value) {
                             setState(() {

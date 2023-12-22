@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:back_pal/services/language_service.dart';
 import 'package:back_pal/services/user_preferences_manager.dart';
+import 'package:back_pal/services/notification_service.dart';
 
 class IncludeWeekendsRow extends StatefulWidget {
-  const IncludeWeekendsRow({super.key});
+  final NotificationService notificationService;
+  final bool isRunning;
+
+  const IncludeWeekendsRow({super.key,
+    required this.notificationService,
+    required this.isRunning,
+  });
 
   @override
   _IncludeWeekendsRowState createState() => _IncludeWeekendsRowState();
@@ -11,17 +18,6 @@ class IncludeWeekendsRow extends StatefulWidget {
 
 class _IncludeWeekendsRowState extends State<IncludeWeekendsRow> {
   bool _includeWeekends = false;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _loadIncludeWeekendsPreference();
-  // }
-  //
-  // Future<void> _loadIncludeWeekendsPreference() async {
-  //   _includeWeekends = UserPreferencesManager.getIncludeWeekends();
-  //   setState(() {});
-  // }
 
   @override
   void initState() {
@@ -36,12 +32,14 @@ class _IncludeWeekendsRowState extends State<IncludeWeekendsRow> {
     });
   }
 
-  void _onIncludeWeekendsChanged(bool newValue) async {
-    setState(() {
-      _includeWeekends = newValue;
-    });
-    await UserPreferencesManager.saveIncludeWeekends(newValue);
+  void _onIncludeWeekendsChanged() async {
+    await UserPreferencesManager.saveIncludeWeekends(_includeWeekends);
+    if(widget.isRunning){
+          widget.notificationService.cancelAllNotifications();
+          widget.notificationService.startScheduledNotifications();
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +56,14 @@ class _IncludeWeekendsRowState extends State<IncludeWeekendsRow> {
         ),
         Switch(
           value: _includeWeekends,
-          onChanged:  _onIncludeWeekendsChanged,
+          onChanged: (bool? newValue){
+            setState(() {
+              if(newValue !=null){
+                _includeWeekends = newValue;
+                _onIncludeWeekendsChanged();
+              }
+            });
+          } ,
           activeColor: Colors.green,
         ),
       ],

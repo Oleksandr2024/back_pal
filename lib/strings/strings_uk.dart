@@ -36,7 +36,7 @@ Map<String, String> ukrainianStrings = {
 'app_pro_oneMonth': 'Підписка на один місяць',
 'app_pro_only': 'тільки',
 'app_pro_oneYear': 'Підписка на один рік',
-'app_pro_buy': 'Купити',
+'app_pro_buy': 'Придбати',
 'app_pro_temporaryNotification': 'Покупка Pro версії тимчасово недоступна.',
 
   // Notification titles
